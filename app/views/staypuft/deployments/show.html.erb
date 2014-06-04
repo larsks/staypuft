@@ -110,9 +110,10 @@
                     <%= check_box_tag :check_all %>
                   </th>
                   <th><%= sort :name, :as => _('Name') %></th>
-                  <th class="hidden-s hidden-xs"><%= _('Deployed?') %></th>
                   <th class="hidden-s hidden-xs"><%= sort :mac, :as => _('MAC Address') %></th>
                   <th class="hidden-s hidden-xs"><%= sort :type, :as => _('Type') %></th>
+                  <th class="hidden-s hidden-xs"><%= _('Deployed?') %></th>
+                  <th class="hidden-s hidden-xs"><%= _('Managed?') %></th>
                 </tr>
               </thead>
               <tbody>
@@ -135,11 +136,15 @@
                       <% when Host::Managed %>
                         <%= link_to_if_authorized host.name, hash_for_host_path(host) %>
                       <% when Host::Discovered %>
-                        <%= link_to_if_authorized host.name, hash_for_discover_path(host) %>
+                        <% path_helper = [:hash_for_discover_path, :hash_for_discovered_host_path].find { |m| respond_to? m } %>
+                        <%= link_to_if_authorized host.name, send(path_helper, host) %>
+
                       <% else %>
                         <%= host.name %>
                       <% end %>
                     </td>
+                    <td class="hidden-s hidden-xs"><%= host.mac %></td>
+                    <td class="hidden-s hidden-xs"><%= host.type %></td>
                     <td class="hidden-s hidden-xs">
                       <% if host.open_stack_deployed? %>
                         <span class="glyphicon glyphicon-cloud"></span>
@@ -147,8 +152,13 @@
                         <span class="glyphicon glyphicon-minus"></span>
                       <% end %>
                     </td>
-                    <td class="hidden-s hidden-xs"><%= host.mac %></td>
-                    <td class="hidden-s hidden-xs"><%= host.type %></td>
+                    <td class="hidden-s hidden-xs">
+                      <% if host.managed? %>
+                        <span class="glyphicon glyphicon-ok"></span>
+                      <% else %>
+                        <span class="glyphicon glyphicon-minus"></span>
+                      <% end %>
+                    </td>
                   </tr>
                 <% end %>
               </tbody>
